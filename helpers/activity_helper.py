@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
+"""Helper to create reply object."""
 
 from datetime import datetime
 from botbuilder.schema import (
@@ -11,7 +12,7 @@ from botbuilder.schema import (
 
 
 def create_activity_reply(activity: Activity, text: str = None, locale: str = None):
-
+    """Helper to create reply object."""
     return Activity(
         type=ActivityTypes.message,
         timestamp=datetime.utcnow(),

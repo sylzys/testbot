@@ -8,7 +8,12 @@ from botbuilder.dialogs import (
     DialogTurnResult,
 )
 from botbuilder.dialogs.prompts import TextPrompt, PromptOptions
-from botbuilder.core import MessageFactory, TurnContext
+from botbuilder.core import (
+    MessageFactory,
+    TurnContext,
+    BotTelemetryClient,
+    NullTelemetryClient,
+)
 from botbuilder.schema import InputHints
 
 from booking_details import BookingDetails
@@ -19,20 +24,30 @@ from .booking_dialog import BookingDialog
 
 class MainDialog(ComponentDialog):
     def __init__(
-        self, luis_recognizer: FlightBookingRecognizer, booking_dialog: BookingDialog
+        self,
+        luis_recognizer: FlightBookingRecognizer,
+        booking_dialog: BookingDialog,
+        telemetry_client: BotTelemetryClient = None,
     ):
         super(MainDialog, self).__init__(MainDialog.__name__)
+        self.telemetry_client = telemetry_client or NullTelemetryClient()
+
+        text_prompt = TextPrompt(TextPrompt.__name__)
+        text_prompt.telemetry_client = self.telemetry_client
+
+        booking_dialog.telemetry_client = self.telemetry_client
+
+        wf_dialog = WaterfallDialog(
+            "WFDialog", [self.intro_step, self.act_step, self.final_step]
+        )
+        wf_dialog.telemetry_client = self.telemetry_client
 
         self._luis_recognizer = luis_recognizer
         self._booking_dialog_id = booking_dialog.id
 
-        self.add_dialog(TextPrompt(TextPrompt.__name__))
+        self.add_dialog(text_prompt)
         self.add_dialog(booking_dialog)
-        self.add_dialog(
-            WaterfallDialog(
-                "WFDialog", [self.intro_step, self.act_step, self.final_step]
-            )
-        )
+        self.add_dialog(wf_dialog)
 
         self.initial_dialog_id = "WFDialog"
 
@@ -121,6 +136,11 @@ class MainDialog(ComponentDialog):
     async def _show_warning_for_unsupported_cities(
         context: TurnContext, luis_result: BookingDetails
     ) -> None:
+        """
+        Shows a warning if the requested From or To cities are recognized as entities but they are not in the Airport entity list.
+        In some cases LUIS will recognize the From and To composite entities as a valid cities but the From and To Airport values
+        will be empty if those entity values can't be mapped to a canonical item in the Airport.
+        """
         if luis_result.unsupported_airports:
             message_text = (
                 f"Sorry but the following airports are not supported:"

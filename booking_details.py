@@ -8,7 +8,7 @@ class BookingDetails:
         destination: str = None,
         origin: str = None,
         travel_date: str = None,
-            unsupported_airports=None,
+        unsupported_airports=None,
     ):
         if unsupported_airports is None:
             unsupported_airports = []
