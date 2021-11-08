@@ -1,19 +1,20 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-from botbuilder.core import (BotTelemetryClient, MessageFactory,
-                             NullTelemetryClient, TurnContext, CardFactory,)
+from botbuilder.core import (BotTelemetryClient, CardFactory, MessageFactory,
+                             NullTelemetryClient, TurnContext)
 from botbuilder.dialogs import (ComponentDialog, DialogTurnResult,
                                 WaterfallDialog, WaterfallStepContext)
 from botbuilder.dialogs.prompts import PromptOptions, TextPrompt
-from botbuilder.schema import InputHints, Attachment
+from botbuilder.schema import Attachment, InputHints
 
 from booking_details import BookingDetails
 from flight_booking_recognizer import FlightBookingRecognizer
 from helpers.luis_helper import Intent, LuisHelper
 
-from .booking_dialog import BookingDialog
 from .adaptive_card_example import FlightCard
+from .booking_dialog import BookingDialog
+
 # import requests
 
 

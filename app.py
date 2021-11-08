@@ -12,25 +12,18 @@ from http import HTTPStatus
 
 from aiohttp import web
 from aiohttp.web import Request, Response, json_response
-from botbuilder.core import (
-    BotFrameworkAdapterSettings,
-    ConversationState,
-    MemoryStorage,
-    UserState,
-)
-from botbuilder.core.integration import aiohttp_error_middleware
-from botbuilder.schema import Activity
 from botbuilder.applicationinsights import ApplicationInsightsTelemetryClient
+from botbuilder.core import (BotFrameworkAdapterSettings, ConversationState,
+                             MemoryStorage, UserState)
+from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.integration.applicationinsights.aiohttp import (
-    AiohttpTelemetryProcessor,
-    bot_telemetry_middleware,
-)
-
-from config import DefaultConfig
-from dialogs import MainDialog, BookingDialog
-from bots import DialogAndWelcomeBot
+    AiohttpTelemetryProcessor, bot_telemetry_middleware)
+from botbuilder.schema import Activity
 
 from adapter_with_error_handler import AdapterWithErrorHandler
+from bots import DialogAndWelcomeBot
+from config import DefaultConfig
+from dialogs import BookingDialog, MainDialog
 from flight_booking_recognizer import FlightBookingRecognizer
 
 CONFIG = DefaultConfig()

@@ -13,3 +13,4 @@ aiohttp
 pytest
 opencensus
 opencensus-ext-azure
+poetry

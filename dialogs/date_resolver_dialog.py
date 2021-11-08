@@ -2,14 +2,12 @@
 # Licensed under the MIT License.
 """Handle date/time resolution for booking dialog."""
 
-from botbuilder.core import BotTelemetryClient, MessageFactory, NullTelemetryClient
-from botbuilder.dialogs import DialogTurnResult, WaterfallDialog, WaterfallStepContext
-from botbuilder.dialogs.prompts import (
-    DateTimePrompt,
-    DateTimeResolution,
-    PromptOptions,
-    PromptValidatorContext,
-)
+from botbuilder.core import (BotTelemetryClient, MessageFactory,
+                             NullTelemetryClient)
+from botbuilder.dialogs import (DialogTurnResult, WaterfallDialog,
+                                WaterfallStepContext)
+from botbuilder.dialogs.prompts import (DateTimePrompt, DateTimeResolution,
+                                        PromptOptions, PromptValidatorContext)
 from datatypes_date_time.timex import Timex
 
 from .cancel_and_help_dialog import CancelAndHelpDialog

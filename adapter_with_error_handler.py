@@ -4,13 +4,9 @@ import sys
 import traceback
 from datetime import datetime
 
-from botbuilder.core import (
-    BotFrameworkAdapter,
-    BotFrameworkAdapterSettings,
-    ConversationState,
-    TurnContext,
-)
-from botbuilder.schema import ActivityTypes, Activity
+from botbuilder.core import (BotFrameworkAdapter, BotFrameworkAdapterSettings,
+                             ConversationState, TurnContext)
+from botbuilder.schema import Activity, ActivityTypes
 
 
 class AdapterWithErrorHandler(BotFrameworkAdapter):

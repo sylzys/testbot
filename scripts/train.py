@@ -1,13 +1,13 @@
 import json
 import random
 import time
+
 import bios
 from azure.cognitiveservices.language.luis.authoring import LUISAuthoringClient
 from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
 from msrest.authentication import CognitiveServicesCredentials
 from sklearn.metrics import accuracy_score
 from tqdm.auto import tqdm
-
 
 config = bios.read("./train_config.yaml")
 client = LUISAuthoringClient(
@@ -179,34 +179,34 @@ def main():
     utterances = utterances[sample_size:]
 
     train_app()
-    # with open("../test.json") as frames_file:
-    #     test_sample = json.load(frames_file)
+    with open("../test.json") as frames_file:
+        test_sample = json.load(frames_file)
 
-    # client = LUISRuntimeClient(
-    #     config["predictionEndpoint"],
-    #     CognitiveServicesCredentials(config["predictionKey"]),
-    # )
-    # y_true = []
-    # y_pred = []
-    # bar1 = tqdm(
-    #     total=(len(utterances) - 100) // 100,
-    #     position=0,
-    #     dynamic_ncols=True,
-    #     leave=True,
-    #     unit="file",
-    #     desc="Sending batches",
-    #     bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
-    # )
-    # for item in test_sample:
-    #     y_true.append(item["intent"])
-    #     try:
-    #         result = client.prediction.resolve(config["app_id,"], item["text"])
-    #         y_pred.append(result.top_scoring_intent.intent)
-    #         # ic(item["intent"], result.top_scoring_intent.intent)
-    #     except Exception as err:
-    #         print("Encountered exception. {}".format(err))
-    #     bar1.update(int(1))
-    # print("Model accuracy: {}".format(accuracy_score(y_true, y_pred)))
+    client = LUISRuntimeClient(
+        config["predictionEndpoint"],
+        CognitiveServicesCredentials(config["predictionKey"]),
+    )
+    y_true = []
+    y_pred = []
+    bar1 = tqdm(
+        total=(len(utterances) - 100) // 100,
+        position=0,
+        dynamic_ncols=True,
+        leave=True,
+        unit="file",
+        desc="Sending batches",
+        bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}]",
+    )
+    for item in test_sample:
+        y_true.append(item["intent"])
+        try:
+            result = client.prediction.resolve(config["app_id,"], item["text"])
+            y_pred.append(result.top_scoring_intent.intent)
+            # ic(item["intent"], result.top_scoring_intent.intent)
+        except Exception as err:
+            print("Encountered exception. {}".format(err))
+        bar1.update(int(1))
+    print("Model accuracy: {}".format(accuracy_score(y_true, y_pred)))
 
 
 if __name__ == "__main__":

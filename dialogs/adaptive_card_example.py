@@ -182,7 +182,7 @@ class FlightCard():
                                 {
                                     "type": "TextBlock",
                                     "horizontalAlignment": "right",
-                                    "text": "$"+result.budget,
+                                    "text": "$" + result.budget,
                                     "size": "medium",
                                     "weight": "bolder",
                                 }

@@ -8,14 +8,14 @@ from botbuilder.dialogs import (DialogTurnResult, WaterfallDialog,
                                 WaterfallStepContext)
 from botbuilder.dialogs.prompts import ConfirmPrompt, PromptOptions, TextPrompt
 from datatypes_date_time.timex import Timex
-
-from .cancel_and_help_dialog import CancelAndHelpDialog
-from .date_resolver_dialog import DateResolverDialog
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
 from opencensus.stats import stats as stats_module
 from opencensus.stats import view as view_module
 from opencensus.tags import tag_map as tag_map_module
+
+from .cancel_and_help_dialog import CancelAndHelpDialog
+from .date_resolver_dialog import DateResolverDialog
 
 
 class BookingDialog(CancelAndHelpDialog):
