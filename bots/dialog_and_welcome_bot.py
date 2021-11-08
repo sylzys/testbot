@@ -3,17 +3,15 @@
 """Main dialog to welcome users."""
 import json
 import os.path
-
 from typing import List
+
+from botbuilder.core import (BotTelemetryClient, ConversationState,
+                             TurnContext, UserState)
 from botbuilder.dialogs import Dialog
-from botbuilder.core import (
-    TurnContext,
-    ConversationState,
-    UserState,
-    BotTelemetryClient,
-)
 from botbuilder.schema import Activity, Attachment, ChannelAccount
+
 from helpers.activity_helper import create_activity_reply
+
 from .dialog_bot import DialogBot
 
 

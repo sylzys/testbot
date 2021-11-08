@@ -12,25 +12,18 @@ from http import HTTPStatus
 
 from aiohttp import web
 from aiohttp.web import Request, Response, json_response
-from botbuilder.core import (
-    BotFrameworkAdapterSettings,
-    ConversationState,
-    MemoryStorage,
-    UserState,
-)
-from botbuilder.core.integration import aiohttp_error_middleware
-from botbuilder.schema import Activity
 from botbuilder.applicationinsights import ApplicationInsightsTelemetryClient
+from botbuilder.core import (BotFrameworkAdapterSettings, ConversationState,
+                             MemoryStorage, UserState)
+from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.integration.applicationinsights.aiohttp import (
-    AiohttpTelemetryProcessor,
-    bot_telemetry_middleware,
-)
-
-from config import DefaultConfig
-from dialogs import MainDialog, BookingDialog
-from bots import DialogAndWelcomeBot
+    AiohttpTelemetryProcessor, bot_telemetry_middleware)
+from botbuilder.schema import Activity
 
 from adapter_with_error_handler import AdapterWithErrorHandler
+from bots import DialogAndWelcomeBot
+from config import DefaultConfig
+from dialogs import BookingDialog, MainDialog
 from flight_booking_recognizer import FlightBookingRecognizer
 
 CONFIG = DefaultConfig()
@@ -67,11 +60,12 @@ BOT = DialogAndWelcomeBot(CONVERSATION_STATE, USER_STATE, DIALOG, TELEMETRY_CLIE
 # Listen for incoming requests on /api/messages.
 async def messages(req: Request) -> Response:
     # Main bot message handler.
-    if "application/json" in req.headers["Content-Type"]:
-        body = await req.json()
-    else:
-        return Response(status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
-
+    # print(req.headers)
+    # if "application/json" in req.headers["Content-Type"]:
+    #     body = await req.json()
+    # else:
+    #     return Response(status=HTTPStatus.UNSUPPORTED_MEDIA_TYPE)
+    body = await req.json()
     activity = Activity().deserialize(body)
     auth_header = req.headers["Authorization"] if "Authorization" in req.headers else ""
 
@@ -81,11 +75,26 @@ async def messages(req: Request) -> Response:
     return Response(status=HTTPStatus.OK)
 
 
-APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
-APP.router.add_post("/api/messages", messages)
+# APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
+# APP.router.add_post("/api/messages", messages)
+
+# if __name__ == "__main__":
+#     try:
+#         web.run_app(APP, host="localhost", port=CONFIG.PORT)
+#     except Exception as error:
+#         raise error
+
+def init_func(argv):
+    APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
+    APP.router.add_post("/api/messages", messages)
+    return APP
+
 
 if __name__ == "__main__":
+    APP = init_func(None)
+
     try:
         web.run_app(APP, host="localhost", port=CONFIG.PORT)
     except Exception as error:
         raise error
+

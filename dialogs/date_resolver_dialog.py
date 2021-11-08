@@ -2,16 +2,16 @@
 # Licensed under the MIT License.
 """Handle date/time resolution for booking dialog."""
 
-from datatypes_date_time.timex import Timex
-
-from botbuilder.core import MessageFactory, BotTelemetryClient, NullTelemetryClient
-from botbuilder.dialogs import WaterfallDialog, DialogTurnResult, WaterfallStepContext
+from botbuilder.core import BotTelemetryClient, MessageFactory, NullTelemetryClient
+from botbuilder.dialogs import DialogTurnResult, WaterfallDialog, WaterfallStepContext
 from botbuilder.dialogs.prompts import (
     DateTimePrompt,
-    PromptValidatorContext,
-    PromptOptions,
     DateTimeResolution,
+    PromptOptions,
+    PromptValidatorContext,
 )
+from datatypes_date_time.timex import Timex
+
 from .cancel_and_help_dialog import CancelAndHelpDialog
 
 
@@ -47,9 +47,14 @@ class DateResolverDialog(CancelAndHelpDialog):
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
         """Prompt for the date."""
-        timex = step_context.options
+        timex = step_context.options['field']
+        booking_details = step_context.options['booking_details']
 
-        prompt_msg = "On what date would you like to travel?"
+        if booking_details.departure_date is None:
+            prompt_msg = "When would you like to leave ?"
+        else:
+            prompt_msg = "When will you come back ?"
+        # prompt_msg = "On what date would you like to travel?"
         reprompt_msg = (
             "I'm sorry, for best results, please enter your travel "
             "date including the month, day and year."
@@ -81,7 +86,7 @@ class DateResolverDialog(CancelAndHelpDialog):
 
     @staticmethod
     async def datetime_prompt_validator(prompt_context: PromptValidatorContext) -> bool:
-        """ Validate the date provided is in proper form. """
+        """Validate the date provided is in proper form."""
         if prompt_context.recognized.succeeded:
             timex = prompt_context.recognized.value[0].timex.split("T")[0]
 

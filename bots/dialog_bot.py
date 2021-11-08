@@ -2,16 +2,12 @@
 # Licensed under the MIT License.
 """Implements bot Activity handler."""
 
-from botbuilder.core import (
-    ActivityHandler,
-    ConversationState,
-    UserState,
-    TurnContext,
-    BotTelemetryClient,
-    NullTelemetryClient,
-)
+from botbuilder.core import (ActivityHandler, BotTelemetryClient,
+                             ConversationState, NullTelemetryClient,
+                             TurnContext, UserState)
 from botbuilder.dialogs import Dialog, DialogExtensions
-from helpers.dialog_helper import DialogHelper
+
+# from helpers.dialog_helper import DialogHelper
 
 
 class DialogBot(ActivityHandler):

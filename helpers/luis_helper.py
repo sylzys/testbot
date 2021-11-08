@@ -2,6 +2,7 @@
 # Licensed under the MIT License.
 from enum import Enum
 from typing import Dict
+
 from botbuilder.ai.luis import LuisRecognizer
 from botbuilder.core import IntentScore, TopIntent, TurnContext
 
@@ -91,10 +92,10 @@ class LuisHelper:
                     if timex:
                         datetime = timex[0].split("T")[0]
 
-                        result.travel_date = datetime
+                        result.from_date = datetime
 
                 else:
-                    result.travel_date = None
+                    result.from_date = None
 
         except Exception as exception:
             print(exception)

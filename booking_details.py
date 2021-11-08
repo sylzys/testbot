@@ -7,12 +7,25 @@ class BookingDetails:
         self,
         destination: str = None,
         origin: str = None,
-        travel_date: str = None,
-        unsupported_airports=None,
+        departure_date: str = None,
+        return_date: str = None,
+        budget: str = None,
+        unsupported_airports=None
     ):
         if unsupported_airports is None:
             unsupported_airports = []
         self.destination = destination
         self.origin = origin
-        self.travel_date = travel_date
+        self.departure_date = departure_date
+        self.return_date = return_date
+        self.budget = budget
         self.unsupported_airports = unsupported_airports
+
+    def get_details(self):
+        return str({
+            "destination": self.destination,
+            "origin": self.origin,
+            "from_date": self.departure_date,
+            "to_date:": self.return_date,
+            "budget:": self.budget
+        })

@@ -3,12 +3,9 @@
 """Helper to create reply object."""
 
 from datetime import datetime
-from botbuilder.schema import (
-    Activity,
-    ActivityTypes,
-    ChannelAccount,
-    ConversationAccount,
-)
+
+from botbuilder.schema import (Activity, ActivityTypes, ChannelAccount,
+                               ConversationAccount)
 
 
 def create_activity_reply(activity: Activity, text: str = None, locale: str = None):

@@ -1,14 +1,10 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-from botbuilder.ai.luis import LuisApplication, LuisRecognizer, LuisPredictionOptions
-from botbuilder.core import (
-    Recognizer,
-    RecognizerResult,
-    TurnContext,
-    BotTelemetryClient,
-    NullTelemetryClient,
-)
+from botbuilder.ai.luis import (LuisApplication, LuisPredictionOptions,
+                                LuisRecognizer)
+from botbuilder.core import (BotTelemetryClient, NullTelemetryClient,
+                             Recognizer, RecognizerResult, TurnContext)
 
 from config import DefaultConfig
 
@@ -20,9 +16,7 @@ class FlightBookingRecognizer(Recognizer):
         self._recognizer = None
 
         luis_is_configured = (
-            configuration.LUIS_APP_ID
-            and configuration.LUIS_API_KEY
-            and configuration.LUIS_API_HOST_NAME
+            configuration.LUIS_APP_ID and configuration.LUIS_API_KEY and configuration.LUIS_API_HOST_NAME
         )
         if luis_is_configured:
             # Set the recognizer options depending on which endpoint version you want to use e.g v2 or v3.

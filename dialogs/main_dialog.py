@@ -1,25 +1,20 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-from botbuilder.dialogs import (
-    ComponentDialog,
-    WaterfallDialog,
-    WaterfallStepContext,
-    DialogTurnResult,
-)
-from botbuilder.dialogs.prompts import TextPrompt, PromptOptions
-from botbuilder.core import (
-    MessageFactory,
-    TurnContext,
-    BotTelemetryClient,
-    NullTelemetryClient,
-)
-from botbuilder.schema import InputHints
+from botbuilder.core import (BotTelemetryClient, MessageFactory,
+                             NullTelemetryClient, TurnContext, CardFactory,)
+from botbuilder.dialogs import (ComponentDialog, DialogTurnResult,
+                                WaterfallDialog, WaterfallStepContext)
+from botbuilder.dialogs.prompts import PromptOptions, TextPrompt
+from botbuilder.schema import InputHints, Attachment
 
 from booking_details import BookingDetails
 from flight_booking_recognizer import FlightBookingRecognizer
-from helpers.luis_helper import LuisHelper, Intent
+from helpers.luis_helper import Intent, LuisHelper
+
 from .booking_dialog import BookingDialog
+from .adaptive_card_example import FlightCard
+# import requests
 
 
 class MainDialog(ComponentDialog):
@@ -117,20 +112,28 @@ class MainDialog(ComponentDialog):
     async def final_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         # If the child dialog ("BookingDialog") was cancelled or the user failed to confirm,
         # the Result here will be null.
+        reply = MessageFactory.list([])
         if step_context.result is not None:
             result = step_context.result
 
+            # r = requests.get('http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=paris&apiKey=prtl6749387986743898559646983194')
             # Now we have all the booking details call the booking service.
 
             # If the call to the booking service was successful tell the user.
             # time_property = Timex(result.travel_date)
             # travel_date_msg = time_property.to_natural_language(datetime.now())
-            msg_txt = f"I have you booked to {result.destination} from {result.origin} on {result.travel_date}"
-            message = MessageFactory.text(msg_txt, msg_txt, InputHints.ignoring_input)
-            await step_context.context.send_activity(message)
-
+            # msg_txt = f"I have you booked to {result.destination} from {result.origin}.\
+            #     You'll be leaving on {result.departure_date}, and come back on {result.departure_date}.\
+            #     # Your budget is {result.budget}. Result is {r.json()}"
+            # message = MessageFactory.text(msg_txt, msg_txt, InputHints.ignoring_input)
+            # await step_context.context.send_activity(message)
+            reply.attachments.append(self.create_adaptive_card(result))
+            await step_context.context.send_activity(reply)
         prompt_message = "What else can I do for you?"
         return await step_context.replace_dialog(self.id, prompt_message)
+
+    def create_adaptive_card(self, result) -> Attachment:
+        return CardFactory.adaptive_card(FlightCard.generate_card(result))
 
     @staticmethod
     async def _show_warning_for_unsupported_cities(

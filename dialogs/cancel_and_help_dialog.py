@@ -3,12 +3,8 @@
 """Handle cancel and help intents."""
 
 from botbuilder.core import BotTelemetryClient, NullTelemetryClient
-from botbuilder.dialogs import (
-    ComponentDialog,
-    DialogContext,
-    DialogTurnResult,
-    DialogTurnStatus,
-)
+from botbuilder.dialogs import (ComponentDialog, DialogContext,
+                                DialogTurnResult, DialogTurnStatus)
 from botbuilder.schema import ActivityTypes
 
 
