@@ -1,4 +1,3 @@
-asyncio>=3.4.3
 requests==2.23.0
 botbuilder-core>=4.14.0
 botframework-connector>=4.14.0
@@ -10,4 +9,4 @@ botbuilder-integration-applicationinsights-aiohttp>=4.14.0
 datatypes-date-time>=1.0.0.a1
 azure-cognitiveservices-language-luis>=0.2.0
 msrest>=0.6.10
-
+aiohttp
