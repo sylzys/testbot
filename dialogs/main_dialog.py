@@ -15,8 +15,6 @@ from helpers.luis_helper import Intent, LuisHelper
 from .adaptive_card_example import FlightCard
 from .booking_dialog import BookingDialog
 
-# import requests
-
 
 class MainDialog(ComponentDialog):
     def __init__(
@@ -56,7 +54,6 @@ class MainDialog(ComponentDialog):
                     input_hint=InputHints.ignoring_input,
                 )
             )
-
             return await step_context.next(None)
         message_text = (
             str(step_context.options)
@@ -70,7 +67,7 @@ class MainDialog(ComponentDialog):
         return await step_context.prompt(
             TextPrompt.__name__, PromptOptions(prompt=prompt_message)
         )
-
+    
     async def act_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         if not self._luis_recognizer.is_configured:
             # LUIS is not configured, we just run the BookingDialog path with an empty BookingDetailsInstance.
@@ -88,7 +85,19 @@ class MainDialog(ComponentDialog):
             await MainDialog._show_warning_for_unsupported_cities(
                 step_context.context, luis_result
             )
-
+            await MainDialog._show_warning_for_bad_budget(
+                step_context.context, luis_result
+            )
+            # # booking_details = step_context.options['booking_details']
+            # if luis_result.budget is not None:
+            #     if ~is_budget_numeric(luis_result.budget):
+            #         budget_error_text = (
+            #     "Budget must be numeric"
+            # # )
+            #         budget_error_message = MessageFactory.text(
+            #             budget_error_text, budget_error_text, InputHints.ignoring_input
+            #         )
+            #         await step_context.context.send_activity(budget_error_message)
             # Run the BookingDialog giving it whatever details we have from the LUIS call.
             return await step_context.begin_dialog(self._booking_dialog_id, luis_result)
 
@@ -138,6 +147,25 @@ class MainDialog(ComponentDialog):
 
     @staticmethod
     async def _show_warning_for_unsupported_cities(
+        context: TurnContext, luis_result: BookingDetails
+    ) -> None:
+        """
+        Shows a warning if the requested From or To cities are recognized as entities but they are not in the Airport entity list.
+        In some cases LUIS will recognize the From and To composite entities as a valid cities but the From and To Airport values
+        will be empty if those entity values can't be mapped to a canonical item in the Airport.
+        """
+        if luis_result.budget is not None and is_budget_not_numeric(luis_result.budget):
+            message_text = (
+                f"Sorry but the budget must not contain letters"
+                f"Please enter your budget again."
+            )
+            message = MessageFactory.text(
+                message_text, message_text, InputHints.ignoring_input
+            )
+            await context.send_activity(message)
+    
+    @staticmethod
+    async def _show_warning_for_bad_budget(
         context: TurnContext, luis_result: BookingDetails
     ) -> None:
         """

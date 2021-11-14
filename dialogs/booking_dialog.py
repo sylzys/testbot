@@ -6,7 +6,9 @@ from botbuilder.core import (BotTelemetryClient, MessageFactory,
                              NullTelemetryClient)
 from botbuilder.dialogs import (DialogTurnResult, WaterfallDialog,
                                 WaterfallStepContext)
-from botbuilder.dialogs.prompts import ConfirmPrompt, PromptOptions, TextPrompt
+from botbuilder.dialogs.prompts import (ConfirmPrompt, NumberPrompt,
+                                        PromptOptions, PromptValidatorContext,
+                                        TextPrompt)
 from datatypes_date_time.timex import Timex
 from opencensus.stats import aggregation as aggregation_module
 from opencensus.stats import measure as measure_module
@@ -18,6 +20,15 @@ from .cancel_and_help_dialog import CancelAndHelpDialog
 from .date_resolver_dialog import DateResolverDialog
 
 
+# import requests
+def is_budget_numeric(budget):
+        import locale
+        import re
+        budget = re.sub(r'[$,.€]', '', budget)
+        if re.search('[a-zA-Z]', budget) is not None:
+            # print("VALUE", value)
+            return False # contains non only number
+        return True
 class BookingDialog(CancelAndHelpDialog):
     """Flight booking implementation."""
 
@@ -52,6 +63,7 @@ class BookingDialog(CancelAndHelpDialog):
         self.add_dialog(
             DateResolverDialog(DateResolverDialog.__name__, self.telemetry_client)
         )
+        self.add_dialog(TextPrompt('budget', BookingDialog.budget_prompt_validator))
         self.add_dialog(waterfall_dialog)
 
         self.initial_dialog_id = WaterfallDialog.__name__
@@ -81,6 +93,10 @@ class BookingDialog(CancelAndHelpDialog):
         self.metrics_exporter = metrics_exporter
         self.view_manager.register_exporter(metrics_exporter)
 
+    async def budget_prompt_validator(prompt_context: PromptValidatorContext) -> bool:
+    # This condition is our validation rule. You can also change the value at this point.
+        return is_budget_numeric(prompt_context.recognized.value)
+    
     async def destination_step(
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
@@ -153,6 +169,7 @@ class BookingDialog(CancelAndHelpDialog):
         if not booking_details.return_date or self.is_ambiguous(
             booking_details.return_date
         ):
+            print("sending return date", )
             # return await step_context.begin_dialog(
             #     DateResolverDialog.__name__, booking_details.return_date
             # )  # pylint: disable=line-too-long
@@ -165,15 +182,22 @@ class BookingDialog(CancelAndHelpDialog):
         """Prompt for origin city."""
         booking_details = step_context.options
         self.history.add(step_context._turn_context.activity.text)
-
+        print(booking_details.get_details(), "result", step_context.result)
         # Capture the response to the previous step's prompt
-        booking_details.return_date = step_context.result
+        if type(step_context.result) is str:
+            booking_details.return_date = step_context.result
+        else:
+            booking_details.return_date = step_context.result[0].timex.split("T")[0]
+
         print(booking_details.get_details())
         if booking_details.budget is None:
             return await step_context.prompt(
-                TextPrompt.__name__,
+                "budget",
                 PromptOptions(
-                    prompt=MessageFactory.text(" What's your budget ?")
+                    prompt=MessageFactory.text(" What's your budget ?"),
+                    retry_prompt=MessageFactory.text(
+                    "Budget must not contain letters."
+                ),
                 ),
             )  # pylint: disable=line-too-long,bad-continuation
 
@@ -185,7 +209,7 @@ class BookingDialog(CancelAndHelpDialog):
         """Confirm the information the user has provided."""
         booking_details = step_context.options
         self.history.add(step_context._turn_context.activity.text)
-        print(booking_details.get_details())
+        print(booking_details.get_details(), "result", step_context.result)
 
         # Capture the results of the previous step
         # booking_details.travel_date = step_context.result

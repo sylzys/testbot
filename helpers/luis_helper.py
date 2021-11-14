@@ -54,7 +54,8 @@ class LuisHelper:
 
             if intent == Intent.BOOK_FLIGHT.value:
                 result = BookingDetails()
-
+                if result.budget is not None:
+                    print("BUDGET")
                 # We need to get the result from the LUIS JSON which at every level returns an array.
                 to_entities = recognizer_result.entities.get("$instance", {}).get(
                     "To", []
@@ -88,6 +89,7 @@ class LuisHelper:
                 date_entities = recognizer_result.entities.get("datetime", [])
                 if date_entities:
                     timex = date_entities[0]["timex"]
+                    print("HELPER", timex)
 
                     if timex:
                         datetime = timex[0].split("T")[0]

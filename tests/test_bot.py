@@ -186,6 +186,7 @@
 import pytest
 from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
 from msrest.authentication import CognitiveServicesCredentials
+
 from config import DefaultConfig
 
 CONFIG = DefaultConfig()
@@ -235,16 +236,5 @@ def test_destination(client, user_request):
             destination = all_entities[i].entity
     
     assert expected == destination
-    
-def test_budget(client, user_request):
-    response = client.prediction.resolve(CONFIG.LUIS_APP_ID, query=user_request)
 
-    expected = '2000'
-    budget = ''
-    all_entities = response.entities
     
-    for i in range(0, len(all_entities)):
-        if all_entities[i].type == 'budget':
-            budget = all_entities[i].entity
-    
-    assert expected == budget
