@@ -4,4 +4,5 @@ __pycache__/
 .vscode
 frames.json
 test_with_keys.py
+profile.publishsettings
 __pycache__
