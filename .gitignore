@@ -3,5 +3,5 @@ __pycache__/
 .pytest_cache
 .vscode
 frames.json
-tests_with_keys.py
+test_with_keys.py
 __pycache__
