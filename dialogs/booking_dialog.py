@@ -2,33 +2,28 @@
 # Licensed under the MIT License.
 """Flight booking dialog."""
 
+import re
+
 from botbuilder.core import (BotTelemetryClient, MessageFactory,
                              NullTelemetryClient)
 from botbuilder.dialogs import (DialogTurnResult, WaterfallDialog,
                                 WaterfallStepContext)
-from botbuilder.dialogs.prompts import (ConfirmPrompt, NumberPrompt,
-                                        PromptOptions, PromptValidatorContext,
-                                        TextPrompt)
+from botbuilder.dialogs.prompts import (ConfirmPrompt, PromptOptions,
+                                        PromptValidatorContext, TextPrompt)
 from datatypes_date_time.timex import Timex
-from opencensus.stats import aggregation as aggregation_module
-from opencensus.stats import measure as measure_module
-from opencensus.stats import stats as stats_module
-from opencensus.stats import view as view_module
-from opencensus.tags import tag_map as tag_map_module
 
 from .cancel_and_help_dialog import CancelAndHelpDialog
 from .date_resolver_dialog import DateResolverDialog
 
 
-# import requests
 def is_budget_numeric(budget):
-        import locale
-        import re
-        budget = re.sub(r'[$,.€]', '', budget)
-        if re.search('[a-zA-Z]', budget) is not None:
-            # print("VALUE", value)
-            return False # contains non only number
-        return True
+    budget = re.sub(r'[$,.€]', '', budget)
+    if re.search('[a-zA-Z]', budget) is not None:
+        # print("VALUE", value)
+        return False  # contains non only number
+    return True
+
+
 class BookingDialog(CancelAndHelpDialog):
     """Flight booking implementation."""
 
@@ -36,10 +31,14 @@ class BookingDialog(CancelAndHelpDialog):
         self,
         dialog_id: str = None,
         telemetry_client: BotTelemetryClient = NullTelemetryClient(),
+        logger=None,
+        tracer=None
     ):
         super(BookingDialog, self).__init__(
             dialog_id or BookingDialog.__name__, telemetry_client
         )
+        self.logger = logger
+        self.tracer = tracer
         self.telemetry_client = telemetry_client
         text_prompt = TextPrompt(TextPrompt.__name__)
         text_prompt.telemetry_client = telemetry_client
@@ -68,23 +67,6 @@ class BookingDialog(CancelAndHelpDialog):
 
         self.initial_dialog_id = WaterfallDialog.__name__
         self.history = set()
-        self.logger = None
-        self.stats = stats_module.stats
-        self.view_manager = self.stats.view_manager
-        self.stats_recorder = self.stats.stats_recorder
-        self.bot_measure = measure_module.MeasureInt("botdefects",
-                                                     "number of bot defects",
-                                                     "botdefects")
-
-        self.bot_view = view_module.View("defect view",
-                                         "number of bot defects",
-                                         [],
-                                         self.bot_measure,
-                                         aggregation_module.CountAggregation())
-        self.view_manager.register_view(self.bot_view)
-        self.mmap = self.stats_recorder.new_measurement_map()
-        self.tmap = tag_map_module.TagMap()
-        self.metrics_exporter = None
 
     def set_logger(self, logger):
         self.logger = logger
@@ -94,9 +76,9 @@ class BookingDialog(CancelAndHelpDialog):
         self.view_manager.register_exporter(metrics_exporter)
 
     async def budget_prompt_validator(prompt_context: PromptValidatorContext) -> bool:
-    # This condition is our validation rule. You can also change the value at this point.
+        # This condition is our validation rule. You can also change the value at this point.
         return is_budget_numeric(prompt_context.recognized.value)
-    
+
     async def destination_step(
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
@@ -121,12 +103,13 @@ class BookingDialog(CancelAndHelpDialog):
 
         # Capture the response to the previous step's prompt
         booking_details.destination = step_context.result
-        print(booking_details.get_details())
         if booking_details.origin is None:
             return await step_context.prompt(
                 TextPrompt.__name__,
                 PromptOptions(
-                    prompt=MessageFactory.text("From what city will you be travelling?")
+                    prompt=MessageFactory.text(
+                        "From what city will you be travelling?"
+                    )
                 ),
             )  # pylint: disable=line-too-long,bad-continuation
 
@@ -196,8 +179,8 @@ class BookingDialog(CancelAndHelpDialog):
                 PromptOptions(
                     prompt=MessageFactory.text(" What's your budget ?"),
                     retry_prompt=MessageFactory.text(
-                    "Budget must not contain letters."
-                ),
+                        "Budget must not contain letters."
+                    ),
                 ),
             )  # pylint: disable=line-too-long,bad-continuation
 
