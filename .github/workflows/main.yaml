@@ -22,8 +22,9 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Run tests
-        run: poetry run pytest
-        working-directory: ./app
+        run: pytest .
+      - name: Run test coverage
+        run: coverage report
   code-quality:
     strategy:
       fail-fast: false

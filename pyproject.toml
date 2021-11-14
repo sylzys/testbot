@@ -1,17 +1,16 @@
 [tool.poetry]
-name = "TravelmeBot"
+name = "FlyBot"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Sylvain <sylvain@zyssman.fr>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 flake8 = "^4.0.1"
-isort = "^5.10.0"
-bandit = "^1.7.0"
 pytest = "^6.2.5"
-safety = "^1.10.3"
 pytest-cov = "^3.0.0"
+isort = "^5.10.1"
+bandit = "^1.7.1"
 
 [tool.poetry.dev-dependencies]
 
