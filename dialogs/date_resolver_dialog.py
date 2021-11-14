@@ -14,14 +14,12 @@ from .cancel_and_help_dialog import CancelAndHelpDialog
 
 
 def are_dates_wrong(departure_date, return_date):
-        # booking_details = step_context.options['booking_details']
-        print("checking dates", return_date, departure_date)
-        
-        if return_date is None or departure_date is None or return_date >= departure_date:
-            return False
-        else:
-            if return_date < departure_date:
-                return True
+    if return_date is None or departure_date is None or return_date >= departure_date:
+        return False
+    else:
+        if return_date < departure_date:
+            return True
+
 
 class DateResolverDialog(CancelAndHelpDialog):
     """Resolve the date"""
@@ -50,7 +48,7 @@ class DateResolverDialog(CancelAndHelpDialog):
         self.add_dialog(waterfall_dialog)
 
         self.initial_dialog_id = WaterfallDialog.__name__ + "2"
-        
+
     async def initial_step(
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
@@ -67,9 +65,7 @@ class DateResolverDialog(CancelAndHelpDialog):
             "I'm sorry, for best results, please enter your travel "
             "date including the month, day and year."
         )
-        
-        # print("DATE: ", booking_details.get_details())
-        
+
         if timex is None:
             print("TIMEX NONE")
             # We were not given any date at all so prompt the user.
@@ -90,7 +86,7 @@ class DateResolverDialog(CancelAndHelpDialog):
         print("we got all", timex)
         return await step_context.next(DateTimeResolution(timex=timex))
 
-    async def final_step(self, step_context: WaterfallStepContext)-> DialogTurnResult:
+    async def final_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         """Cleanup - set final return value and end dialog."""
         timex = step_context.result[0].timex
         booking_details = step_context.options['booking_details']
@@ -120,8 +116,5 @@ class DateResolverDialog(CancelAndHelpDialog):
         print("PROMPT VALIDATOR")
         if prompt_context.recognized.succeeded:
             timex = prompt_context.recognized.value[0].timex.split("T")[0]
-
-            # TODO: Needs TimexProperty
             return "definite" in Timex(timex).types
-
         return False

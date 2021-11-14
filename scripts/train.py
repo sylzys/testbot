@@ -4,11 +4,11 @@ import time
 
 import bios
 from azure.cognitiveservices.language.luis.authoring import LUISAuthoringClient
-from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
+from icecream import ic
 from msrest.authentication import CognitiveServicesCredentials
 from sklearn.metrics import accuracy_score
 from tqdm.auto import tqdm
-from icecream import ic
+
 config = bios.read("train_config.yaml")
 client = LUISAuthoringClient(
     config["authoringEndpoint"],
@@ -187,7 +187,6 @@ def main():
     # with open("../test.json") as frames_file:
     #     test_sample = json.load(frames_file)
 
-    
     y_true = []
     y_pred = []
     bar1 = tqdm(
