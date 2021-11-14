@@ -162,9 +162,6 @@ class MainDialog(ComponentDialog):
             await MainDialog._show_warning_for_unsupported_cities(
                 step_context.context, luis_result
             )
-            await MainDialog._show_warning_for_bad_budget(
-                step_context.context, luis_result
-            )
             # Run the BookingDialog giving it whatever details we have from the LUIS call.
             return await step_context.begin_dialog(self._booking_dialog_id, luis_result)
 
