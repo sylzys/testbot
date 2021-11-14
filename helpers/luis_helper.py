@@ -40,6 +40,7 @@ class LuisHelper:
         intent = None
 
         try:
+            # print(turn_context.__dict__)
             recognizer_result = await luis_recognizer.recognize(turn_context)
 
             intent = (

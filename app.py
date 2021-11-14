@@ -19,15 +19,31 @@ from botbuilder.core.integration import aiohttp_error_middleware
 from botbuilder.integration.applicationinsights.aiohttp import (
     AiohttpTelemetryProcessor, bot_telemetry_middleware)
 from botbuilder.schema import Activity
+from opencensus.trace.tracer import Tracer
 
 from adapter_with_error_handler import AdapterWithErrorHandler
 from bots import DialogAndWelcomeBot
 from config import DefaultConfig
 from dialogs import BookingDialog, MainDialog
 from flight_booking_recognizer import FlightBookingRecognizer
+import logging
+from opencensus.ext.azure.log_exporter import AzureLogHandler
+from opencensus.ext.azure.trace_exporter import AzureExporter
 
 CONFIG = DefaultConfig()
-
+# LOGGER = logging.getLogger(__name__)
+# LOGGER.addHandler(AzureLogHandler(
+#     connection_string='InstrumentationKey=e3493735-8516-4a46-a754-1ad2348cf0f5')
+# )
+# def callback_function(envelope):
+#     envelope.data.baseData.properties['os_type'] = 'linux'
+#     return True
+# exporter = AzureExporter(
+#     connection_string='InstrumentationKey=e3493735-8516-4a46-a754-1ad2348cf0f5')
+# exporter.add_telemetry_processor(callback_function)
+# tracer = Tracer(exporter=exporter, sampler=ProbabilitySampler(1.0))
+# with tracer.span(name='parent'):
+#     response = requests.get(url='https://www.wikipedia.org/wiki/Rabbit')
 # Create adapter.
 # See https://aka.ms/about-bot-adapter to learn more about how bots work.
 SETTINGS = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
@@ -53,7 +69,7 @@ TELEMETRY_CLIENT = ApplicationInsightsTelemetryClient(
 # Create dialogs and Bot
 RECOGNIZER = FlightBookingRecognizer(CONFIG)
 BOOKING_DIALOG = BookingDialog()
-DIALOG = MainDialog(RECOGNIZER, BOOKING_DIALOG, telemetry_client=TELEMETRY_CLIENT)
+DIALOG = MainDialog(RECOGNIZER, BOOKING_DIALOG, None, telemetry_client=TELEMETRY_CLIENT)
 BOT = DialogAndWelcomeBot(CONVERSATION_STATE, USER_STATE, DIALOG, TELEMETRY_CLIENT)
 
 

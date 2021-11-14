@@ -8,8 +8,8 @@ from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
 from msrest.authentication import CognitiveServicesCredentials
 from sklearn.metrics import accuracy_score
 from tqdm.auto import tqdm
-
-config = bios.read("./train_config.yaml")
+from icecream import ic
+config = bios.read("train_config.yaml")
 client = LUISAuthoringClient(
     config["authoringEndpoint"],
     CognitiveServicesCredentials(config["authoringKey"]),
@@ -19,11 +19,11 @@ TEST_SIZE = 0.05
 entities_dict = {
     "dst_city": "To",
     "or_city": "From",
-    "str_date": "dateTimeV2",
-    "end_date": "dateTimeV2",
+    "str_date": "Departure",
+    "end_date": "Return",
     "budget": "Budget",
 }
-
+existing_entities = ''
 intent_dict = {"book": "BookFlight"}
 
 
@@ -33,6 +33,7 @@ def get_example_label(utterance, entity_name, value):
     """
     # ic(entity_name)
     utterance = utterance.lower()
+    # ic(value)
     value = value.lower()
     return {
         "entityName": entity_name,
@@ -47,15 +48,18 @@ def check_entities_and_build_utterances(args, turn):
     if len(args) == 0:
         return
     for arg in args:
-        if "val" not in arg.keys():
+        if "val" not in arg.keys() or type(arg["val"]) is not str:
             break
         entity = None
         utterance = dict()
         if arg["key"] in entities_dict:
             # ic(arg)
             entity = entities_dict[arg["key"]]
+        else:
+            entity = arg["key"]
         if entity is not None:
-            # ic("NOT NONE")
+            if entity == "budget":
+                ic(entity)
             entity = get_example_label(turn["text"], entity, arg["val"])
             utterance["intentName"] = "BookFlight"
             entities.append(entity)
@@ -85,21 +89,22 @@ def parse_file(data):
     for i, user in enumerate(data):
         if "user_id" not in user:
             return "Users must have id"
-        turn = user["turns"][0]
-        if "db" in turn:
-            continue
-        labels = turn["labels"]
-        acts = labels["acts"]
-        for act in acts:
-            args = act["args"]
-            for arg in args:
-                if arg["key"] == "intent":
-                    got_intent = True
-                    continue
-        if got_intent:
-            res = check_entities_and_build_utterances(act["args"], turn)
-            if res is not None:
-                utterances = utterances + res
+        # turn = user["turns"][0]
+        for turn in user['turns']:
+            if "db" in turn:
+                continue
+            labels = turn["labels"]
+            acts = labels["acts"]
+            for act in acts:
+                args = act["args"]
+                for arg in args:
+                    if arg["key"] == "intent":
+                        got_intent = True
+                        continue
+            if got_intent:
+                res = check_entities_and_build_utterances(act["args"], turn)
+                if res is not None:
+                    utterances = utterances + res
         bar1.update(int(1))
     return utterances
 
@@ -132,8 +137,8 @@ def format_test_file(data):
         item.pop("entityLabels")
         formatted_data.append(item)
         id(formatted_data)
-    with open("test.json", "w") as outfile:
-        json.dump(formatted_data, outfile)
+    # with open("test.json", "w") as outfile:
+    #     json.dump(formatted_data, outfile)
 
 
 def send_batches(utterances):
@@ -179,13 +184,10 @@ def main():
     utterances = utterances[sample_size:]
 
     train_app()
-    with open("../test.json") as frames_file:
-        test_sample = json.load(frames_file)
+    # with open("../test.json") as frames_file:
+    #     test_sample = json.load(frames_file)
 
-    client = LUISRuntimeClient(
-        config["predictionEndpoint"],
-        CognitiveServicesCredentials(config["predictionKey"]),
-    )
+    
     y_true = []
     y_pred = []
     bar1 = tqdm(

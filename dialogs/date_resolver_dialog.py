@@ -57,7 +57,7 @@ class DateResolverDialog(CancelAndHelpDialog):
         """Prompt for the date."""
         timex = step_context.options['field']
         booking_details = step_context.options['booking_details']
-
+        print(booking_details.get_details())
         if booking_details.departure_date is None:
             prompt_msg = "When would you like to leave ?"
         else:

@@ -1,4 +1,7 @@
 authoringKey: "66807a9398664e19b8e0c19e912ffc9e"
 authoringEndpoint: "https://luisocrp10-authoring.cognitiveservices.azure.com/"
+predictionKey: "85a4549a0029455c882c6a04a2e6197d"
+predictionEndpoint: "https://luisocrp10.cognitiveservices.azure.com/"
 app_id: "79b52831-0ac7-4089-825a-dbd70496bd3a"
+api_hostname: "https://westeurope.api.cognitive.microsoft.com"
 version_id: "0.1"

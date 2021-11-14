@@ -14,6 +14,12 @@ from helpers.luis_helper import Intent, LuisHelper
 
 from .adaptive_card_example import FlightCard
 from .booking_dialog import BookingDialog
+<<<<<<< Updated upstream
+=======
+from opencensus.trace.tracer import Tracer
+from opencensus.ext.azure.trace_exporter import AzureExporter
+# import requests
+>>>>>>> Stashed changes
 
 
 class MainDialog(ComponentDialog):
@@ -21,10 +27,12 @@ class MainDialog(ComponentDialog):
         self,
         luis_recognizer: FlightBookingRecognizer,
         booking_dialog: BookingDialog,
+        logger,
         telemetry_client: BotTelemetryClient = None,
     ):
         super(MainDialog, self).__init__(MainDialog.__name__)
         self.telemetry_client = telemetry_client or NullTelemetryClient()
+        self.tracer = Tracer(exporter=AzureExporter(connection_string='InstrumentationKey=e3493735-8516-4a46-a754-1ad2348cf0f5'))
 
         text_prompt = TextPrompt(TextPrompt.__name__)
         text_prompt.telemetry_client = self.telemetry_client
@@ -37,6 +45,7 @@ class MainDialog(ComponentDialog):
         wf_dialog.telemetry_client = self.telemetry_client
 
         self._luis_recognizer = luis_recognizer
+        self._logger = logger
         self._booking_dialog_id = booking_dialog.id
 
         self.add_dialog(text_prompt)
@@ -112,6 +121,10 @@ class MainDialog(ComponentDialog):
             didnt_understand_text = (
                 "Sorry, I didn't get that. Please try asking in a different way"
             )
+            # print("EXC: ",self.text_prompt)
+            # self._logger.exception('Captured an exception.', extra={"query": "some bad text here"})
+            # with self.tracer.span(name='BOT_TRAINING'):
+            #     print('No answer to ', step_context.result) 
             didnt_understand_message = MessageFactory.text(
                 didnt_understand_text, didnt_understand_text, InputHints.ignoring_input
             )

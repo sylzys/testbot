@@ -72,26 +72,29 @@ class BookingDialog(CancelAndHelpDialog):
         self.stats = stats_module.stats
         self.view_manager = self.stats.view_manager
         self.stats_recorder = self.stats.stats_recorder
-        self.bot_measure = measure_module.MeasureInt("botdefects",
-                                                     "number of bot defects",
-                                                     "botdefects")
+        # self.bot_measure = measure_module.MeasureInt("botdefects",
+        #                                              "number of bot defects",
+        #                                              "botdefects")
 
-        self.bot_view = view_module.View("defect view",
-                                         "number of bot defects",
-                                         [],
-                                         self.bot_measure,
-                                         aggregation_module.CountAggregation())
-        self.view_manager.register_view(self.bot_view)
-        self.mmap = self.stats_recorder.new_measurement_map()
-        self.tmap = tag_map_module.TagMap()
-        self.metrics_exporter = None
+        # self.bot_view = view_module.View("defect view",
+        #                                  "number of bot defects",
+        #                                  [],
+        #                                  self.bot_measure,
+        #                                  aggregation_module.CountAggregation())
+        # self.view_manager.register_view(self.bot_view)
+        # self.mmap = self.stats_recorder.new_measurement_map()
+        # self.tmap = tag_map_module.TagMap()
+        # self.mmap.measure_int_put(self.bot_measure, 90)
+        # self.mmap.record(self.tmap)
+        print("Done setting metrics")
+        # self.metrics_exporter = 
+    # def set_logger(self, logger):
+    #     self.logger = logger
 
-    def set_logger(self, logger):
-        self.logger = logger
+    # def set_metrics_exporter(self, metrics_exporter):
+        # self.metrics_exporter = metrics_exporter.new_metrics_exporter(connection_string='InstrumentationKey=e3493735-8516-4a46-a754-1ad2348cf0f5')
 
-    def set_metrics_exporter(self, metrics_exporter):
-        self.metrics_exporter = metrics_exporter
-        self.view_manager.register_exporter(metrics_exporter)
+        # self.view_manager.register_exporter(metrics_exporter)
 
     async def budget_prompt_validator(prompt_context: PromptValidatorContext) -> bool:
     # This condition is our validation rule. You can also change the value at this point.
