@@ -42,6 +42,6 @@ jobs:
       - name: Run isort
         run: poetry run isort . --check-only 
       - name: Run flake8
-        run: poetry run flake8 . --ignore=E501,E722 --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests,.venv,manifests
+        run: poetry run flake8 . --ignore=E501,E722,F403,F405 --exclude .git,__pycache__,docs/source/conf.py,old,build,dist,tests,.venv,manifests
       - name: Run bandit
         run: poetry run bandit .

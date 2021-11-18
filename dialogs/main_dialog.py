@@ -176,6 +176,9 @@ class MainDialog(ComponentDialog):
             didnt_understand_text = (
                 "Sorry, I didn't get that. Please try asking in a different way"
             )
+            self.logger.error("Bot dod not understand {}".format(luis_result), self.bot_mmap)
+            self.bot_mmap.measure_int_put(self.bot_measure, 1)
+            self.bot_mmap.record(self.bot_tmap)
             # print("EXC: ",self.text_prompt)
             # self._logger.exception('Captured an exception.', extra={"query": "some bad text here"})
             # with self.tracer.span(name='BOT_TRAINING'):
