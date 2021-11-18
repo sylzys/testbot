@@ -3,6 +3,7 @@
 
 import logging
 
+import requests
 from botbuilder.core import (BotTelemetryClient, CardFactory, MessageFactory,
                              NullTelemetryClient, TurnContext)
 from botbuilder.dialogs import (ComponentDialog, DialogTurnResult,
@@ -24,6 +25,8 @@ from helpers.luis_helper import Intent, LuisHelper
 
 from .adaptive_card_example import FlightCard
 from .booking_dialog import BookingDialog
+
+CONFIG = DefaultConfig()
 
 
 class MainDialog(ComponentDialog):
@@ -179,10 +182,6 @@ class MainDialog(ComponentDialog):
             self.logger.error("Bot dod not understand {}".format(luis_result), self.bot_mmap)
             self.bot_mmap.measure_int_put(self.bot_measure, 1)
             self.bot_mmap.record(self.bot_tmap)
-            # print("EXC: ",self.text_prompt)
-            # self._logger.exception('Captured an exception.', extra={"query": "some bad text here"})
-            # with self.tracer.span(name='BOT_TRAINING'):
-            #     print('No answer to ', step_context.result)
             didnt_understand_message = MessageFactory.text(
                 didnt_understand_text, didnt_understand_text, InputHints.ignoring_input
             )
@@ -196,24 +195,35 @@ class MainDialog(ComponentDialog):
         reply = MessageFactory.list([])
         if step_context.result is not None:
             result = step_context.result
+            print(result)
             msg_txt = f"I have you booked to {result.destination} from {result.origin}.\
-                You'll be leaving on {result.departure_date}, and come back on {result.departure_date}.\
+                You'll be leaving on {result.departure_date}, and come back on {result.return_date}.\
                 Your budget is {result.budget}."
             self.logger.warning(f"User has accepted the booking: {msg_txt}")
             self.accepted_mmap.measure_int_put(self.accepted_booking_measure, 1)
             self.accepted_mmap.record(self.accepted_tmap)
-        # r = requests.get(
-            # 'http://partners.api.skyscanner.net/apiservices/autosuggest/v1.0/UK/GBP/en-GB/?query=paris&apiKey=prtl6749387986743898559646983194')
-        # Now we have all the booking details call the booking service.
+            print(CONFIG.PLACES[result.origin.lower()], CONFIG.PLACES[result.destination.lower()])
+            await step_context.context.send_activity("Fetching SkyScanner quotes...")
+            print("http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/FR/eur/en-US/{}/{}/{}/{}?apikey=prtl6749387986743898559646983194".format(CONFIG.PLACES[result.origin.lower().strip()], CONFIG.PLACES[result.destination.lower().strip()], result.departure_date, result.return_date))
+            r = requests.get("http://partners.api.skyscanner.net/apiservices/browsequotes/v1.0/FR/eur/en-US/{}/{}/{}/{}?apikey=prtl6749387986743898559646983194"
+                             .format(CONFIG.PLACES[result.origin.lower().strip()], CONFIG.PLACES[result.destination.lower().strip()], result.departure_date, result.return_date))
+            quotes = r.json()
+            if 'code' in quotes and quotes['code'] == 429:
+                await step_context.context.send_activity("Skyscanner is unreachable at the moment...")
+                result.outbound_carrier = ''
+                result.inbound_carrier = ''
+                result.airports = []
+                result.quotes = result.budget
 
-        # If the call to the booking service was successful tell the user.
-        # time_property = Timex(result.travel_date)
-        # travel_date_msg = time_property.to_natural_language(datetime.now())
-        # msg_txt = f"I have you booked to {result.destination} from {result.origin}.\
-        #     You'll be leaving on {result.departure_date}, and come back on {result.departure_date}.\
-        #     # Your budget is {result.budget}. Result is {r.json()}"
-        # message = MessageFactory.text(msg_txt, msg_txt, InputHints.ignoring_input)
-        # await step_context.context.send_activity(message)
+            else:
+                result.outbound_carrier = quotes['Carriers'][0]['Name']
+                result.inbound_carrier = quotes['Carriers'][1]['Name']
+                result.airports = []
+                result.quotes = str(quotes['Quotes'][0]['MinPrice'])
+                for place in quotes['Places']:
+                    if 'IataCode' in place:
+                        result.airports.append(place['IataCode'])
+
             reply.attachments.append(self.create_adaptive_card(result))
             await step_context.context.send_activity(reply)
         else:

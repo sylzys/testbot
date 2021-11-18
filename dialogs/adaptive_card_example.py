@@ -24,7 +24,7 @@ class FlightCard():
                     "weight": "bolder",
                     "isSubtle": False,
                 },
-                {"type": "TextBlock", "text": "FlyMe Customer", "separator": True},
+                {"type": "TextBlock", "text": result.name, "separator": True},
                 {
                     "type": "TextBlock",
                     "text": "Direct",
@@ -38,6 +38,12 @@ class FlightCard():
                     "spacing": "none",
                 },
                 {
+                    "type": "TextBlock",
+                    "text": result.outbound_carrier,
+                    "weight": "bolder",
+                    "spacing": "none",
+                },
+                {
                     "type": "ColumnSet",
                     "separator": True,
                     "columns": [
@@ -47,7 +53,7 @@ class FlightCard():
                             "items": [
                                 {
                                     "type": "TextBlock",
-                                    "text": result.origin.capitalize(),
+                                    "text": result.origin.capitalize() + " (" + result.airports[0] + ")",
                                     "isSubtle": True,
                                 },
                                 {
@@ -79,7 +85,7 @@ class FlightCard():
                                 {
                                     "type": "TextBlock",
                                     "horizontalAlignment": "right",
-                                    "text": result.destination.capitalize(),
+                                    "text": result.destination.capitalize() + " (" + result.airports[-1] + ")",
                                     "isSubtle": True,
                                 },
                                 {
@@ -107,6 +113,12 @@ class FlightCard():
                     "spacing": "none",
                 },
                 {
+                    "type": "TextBlock",
+                    "text": result.inbound_carrier,
+                    "weight": "bolder",
+                    "spacing": "none",
+                },
+                {
                     "type": "ColumnSet",
                     "separator": True,
                     "columns": [
@@ -114,7 +126,7 @@ class FlightCard():
                             "type": "Column",
                             "width": 1,
                             "items": [
-                                {"type": "TextBlock", "text": result.destination.capitalize(), "isSubtle": True},
+                                {"type": "TextBlock", "text": result.destination.capitalize() + " (" + result.airports[0] + ")", "isSubtle": True},
                                 {
                                     "type": "TextBlock",
                                     "size": "extraLarge",
@@ -144,7 +156,7 @@ class FlightCard():
                                 {
                                     "type": "TextBlock",
                                     "horizontalAlignment": "right",
-                                    "text": result.origin.capitalize(),
+                                    "text": result.origin.capitalize() + " (" + result.airports[0] + ")",
                                     "isSubtle": True,
                                 },
                                 {
@@ -182,7 +194,7 @@ class FlightCard():
                                 {
                                     "type": "TextBlock",
                                     "horizontalAlignment": "right",
-                                    "text": "$" + result.budget,
+                                    "text": "$" + result.quotes,
                                     "size": "medium",
                                     "weight": "bolder",
                                 }
